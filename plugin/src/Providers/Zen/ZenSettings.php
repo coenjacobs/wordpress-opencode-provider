@@ -161,12 +161,14 @@ class ZenSettings
         $staleModels = array_values(array_diff($enabled, $modelIds));
 
         $pluginFile = dirname(__DIR__, 3) . '/opencode-provider.php';
+        $pluginData = get_file_data($pluginFile, ['Version' => 'Version']);
+        $version = $pluginData['Version'] ?: '0.1.0';
 
         wp_enqueue_script(
             'opencode-model-selector',
             plugins_url('assets/model-selector.js', $pluginFile),
             [],
-            '0.1.0',
+            $version,
             true
         );
 
@@ -174,7 +176,7 @@ class ZenSettings
             'opencode-model-selector',
             plugins_url('assets/model-selector.css', $pluginFile),
             [],
-            '0.1.0'
+            $version
         );
 
         echo '<div class="model-selector" data-default-collapsed="false" data-grouped="false"'
