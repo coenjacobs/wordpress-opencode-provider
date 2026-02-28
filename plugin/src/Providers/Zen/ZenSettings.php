@@ -171,7 +171,7 @@ class ZenSettings
         );
 
         echo '<div class="model-selector" data-default-collapsed="false" data-grouped="false"'
-            . ' data-stale-models="' . esc_attr(wp_json_encode($staleModels)) . '">';
+            . ' data-stale-models="' . esc_attr((string) wp_json_encode($staleModels)) . '">';
         echo '<input type="text" class="model-selector__search" placeholder="Search models..." />';
         echo '<div class="model-selector__chips"></div>';
 
