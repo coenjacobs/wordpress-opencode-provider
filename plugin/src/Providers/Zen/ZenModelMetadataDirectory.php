@@ -115,7 +115,7 @@ class ZenModelMetadataDirectory implements ModelMetadataDirectoryInterface
 
         $response = wp_remote_get('https://opencode.ai/zen/v1/models', [
             'timeout' => 15,
-            'headers' => ['Content-Type' => 'application/json'],
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         if (is_wp_error($response)) {
