@@ -107,7 +107,8 @@ class ZenModelMetadataDirectory implements ModelMetadataDirectoryInterface
             // Populate format cache from stored data.
             foreach ($cached as $model) {
                 if (isset($model['id'])) {
-                    self::$modelApiFormats[$model['id']] = self::detectApiFormatFromId($model['id']);
+                    self::$modelApiFormats[$model['id']] = $model['api_format']
+                        ?? self::detectApiFormatFromId($model['id']);
                 }
             }
             return $cached;
@@ -156,6 +157,7 @@ class ZenModelMetadataDirectory implements ModelMetadataDirectoryInterface
             $models[] = [
                 'id' => $model['id'],
                 'name' => $model['name'] ?? $model['id'],
+                'api_format' => $format,
             ];
         }
 
