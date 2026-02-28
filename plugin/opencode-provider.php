@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Plugin Name: OpenCode Provider
  * Description: Adds OpenCode as an AI provider for the WordPress AI Client.
