@@ -5,74 +5,67 @@ declare(strict_types=1);
 namespace CoenJacobs\OpenCodeProvider;
 
 use CoenJacobs\OpenCodeProvider\Admin\SettingsPage;
-use CoenJacobs\OpenCodeProvider\Http\WpHttpClient;
 use CoenJacobs\OpenCodeProvider\Providers\Zen\ZenProvider;
 use CoenJacobs\OpenCodeProvider\Providers\Zen\ZenSettings;
-use WordPress\AiClient\AiClient;
-use WordPress\AiClient\Providers\Http\DTO\ApiKeyRequestAuthentication;
-use WordPress\AiClient\Providers\Http\HttpTransporter;
+use CoenJacobs\OpenCodeProvider\Dependencies\CoenJacobs\WordPressAiProvider\Provider\AbstractProviderPlugin;
+use CoenJacobs\OpenCodeProvider\Dependencies\CoenJacobs\WordPressAiProvider\Provider\ProviderConfig;
 
-class Plugin
+class Plugin extends AbstractProviderPlugin
 {
-    private static ?Plugin $instance = null;
+    /** @var static|null */
+    protected static $instance = null;
 
-    public static function instance(): Plugin
+    private static ProviderConfig $providerConfig;
+
+    public static function providerConfig(): ProviderConfig
     {
-        if (self::$instance === null) {
-            self::$instance = new self();
+        if (!isset(self::$providerConfig)) {
+            self::$providerConfig = new ProviderConfig([
+                'providerId' => 'opencode-zen',
+                'providerName' => 'OpenCode Zen',
+                'envVarName' => 'OPENCODE_ZEN_API_KEY',
+                'constantName' => 'OPENCODE_ZEN_API_KEY',
+                'enabledModelsOption' => 'opencode_zen_enabled_models',
+                'modelsTransientKey' => 'opencode_zen_models_raw',
+                'errorTransientKey' => 'opencode_zen_models_fetch_error',
+                'refreshQueryParam' => 'opencode_refresh_models',
+                'refreshNonceAction' => 'opencode_refresh_models',
+                'pageSlug' => 'opencode-provider',
+                'optionGroup' => 'opencode-provider',
+                'sectionId' => 'opencode_zen',
+                'sectionTitle' => 'OpenCode Zen',
+                'sectionDescriptionHtml' => '<p>Get your API key from '
+                    . '<a href="https://opencode.ai/zen" target="_blank" rel="noopener noreferrer">'
+                    . 'opencode.ai/zen</a>.</p>',
+                'pageTitle' => 'OpenCode',
+                'menuTitle' => 'OpenCode',
+                'infoCardTitle' => 'About OpenCode',
+                'infoCardDescription' => 'OpenCode Zen: managed AI gateway with 35+ models across multiple providers.',
+                'websiteUrl' => 'https://opencode.ai',
+                'websiteLinkText' => 'OpenCode Website',
+            ]);
         }
 
-        return self::$instance;
+        return self::$providerConfig;
     }
 
-    public function setup(): void
+    protected function getConfig(): ProviderConfig
     {
-        add_action('init', [$this, 'registerZenProvider'], 5);
-
-        if (is_admin()) {
-            $settings_page = new SettingsPage();
-            add_action('admin_menu', [$settings_page, 'registerMenu']);
-
-            $zen_settings = new ZenSettings();
-            add_action('admin_init', [$zen_settings, 'registerSettings']);
-        }
+        return self::providerConfig();
     }
 
-    /**
-     * Register the Zen provider with the WordPress AI Client registry.
-     */
-    public function registerZenProvider(): void
+    protected function getProviderClass(): string
     {
-        if (!class_exists(AiClient::class)) {
-            return;
-        }
+        return ZenProvider::class;
+    }
 
-        $registry = AiClient::defaultRegistry();
+    protected function createSettingsPage()
+    {
+        return new SettingsPage(self::providerConfig());
+    }
 
-        if ($registry->hasProvider(ZenProvider::class)) {
-            return;
-        }
-
-        $registry->registerProvider(ZenProvider::class);
-
-        $api_key = ZenSettings::getActiveApiKey();
-        if (!empty($api_key)) {
-            $auth = new ApiKeyRequestAuthentication($api_key);
-            $registry->setProviderRequestAuthentication('opencode-zen', $auth);
-        }
-
-        // Set up the HTTP transporter if not already configured.
-        // This is needed for actual model execution during AI Experiments.
-        // Only works when AI Experiments plugin is installed (provides unscoped PSR interfaces).
-        try {
-            $registry->getHttpTransporter();
-        } catch (\Throwable $e) {
-            if (class_exists('Nyholm\\Psr7\\Factory\\Psr17Factory')) {
-                $factory     = new \Nyholm\Psr7\Factory\Psr17Factory();
-                $client      = new WpHttpClient();
-                $transporter = new HttpTransporter($client, $factory, $factory);
-                $registry->setHttpTransporter($transporter);
-            }
-        }
+    protected function createSettings()
+    {
+        return new ZenSettings(self::providerConfig());
     }
 }

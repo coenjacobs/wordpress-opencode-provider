@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace CoenJacobs\OpenCodeProvider\Providers\Zen;
 
+use CoenJacobs\OpenCodeProvider\Plugin;
 use CoenJacobs\OpenCodeProvider\Providers\Zen\Models\AnthropicCompatibleTextGenerationModel;
 use CoenJacobs\OpenCodeProvider\Providers\Zen\Models\GoogleCompatibleTextGenerationModel;
 use CoenJacobs\OpenCodeProvider\Providers\Zen\Models\OpenAiCompatibleTextGenerationModel;
+use CoenJacobs\OpenCodeProvider\Dependencies\CoenJacobs\WordPressAiProvider\Provider\ApiKeyProviderAvailability;
 use RuntimeException;
 use WordPress\AiClient\Providers\ApiBasedImplementation\AbstractApiProvider;
 use WordPress\AiClient\Providers\Contracts\ModelMetadataDirectoryInterface;
@@ -37,12 +39,12 @@ class ZenProvider extends AbstractApiProvider
 
     protected static function createProviderAvailability(): ProviderAvailabilityInterface
     {
-        return new ZenProviderAvailability();
+        return new ApiKeyProviderAvailability(Plugin::providerConfig());
     }
 
     protected static function createModelMetadataDirectory(): ModelMetadataDirectoryInterface
     {
-        return new ZenModelMetadataDirectory();
+        return new ZenModelMetadataDirectory(Plugin::providerConfig());
     }
 
     /**
