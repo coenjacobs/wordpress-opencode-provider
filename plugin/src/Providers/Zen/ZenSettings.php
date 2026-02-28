@@ -192,60 +192,14 @@ class ZenSettings
     }
 
     /**
-     * Fetch available models from the API, with transient caching.
+     * Fetch available models from the API via the model metadata directory.
      *
-     * @return list<array{id: string}>
+     * @return list<array{id: string, name?: string}>
      */
-    public function fetchModels(): array
+    private function fetchModels(): array
     {
-        $cached = get_transient('opencode_zen_models');
-        if ($cached !== false) {
-            return $cached;
-        }
-
-        $response = wp_remote_get('https://opencode.ai/zen/v1/models', [
-            'timeout' => 15,
-            'headers' => ['Content-Type' => 'application/json'],
-        ]);
-
-        if (is_wp_error($response)) {
-            return [];
-        }
-
-        $status = wp_remote_retrieve_response_code($response);
-        if ($status !== 200) {
-            return [];
-        }
-
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-        if (!is_array($data)) {
-            return [];
-        }
-
-        $modelList = $data['data'] ?? $data;
-        if (!is_array($modelList)) {
-            return [];
-        }
-
-        $models = [];
-        foreach ($modelList as $model) {
-            if (!isset($model['id'])) {
-                continue;
-            }
-
-            $models[] = [
-                'id' => $model['id'],
-            ];
-        }
-
-        usort($models, function ($a, $b) {
-            return strcmp($a['id'], $b['id']);
-        });
-
-        set_transient('opencode_zen_models', $models, 10 * MINUTE_IN_SECONDS);
-
-        return $models;
+        $directory = new ZenModelMetadataDirectory();
+        return $directory->fetchAllModels();
     }
 
     /**
@@ -284,7 +238,6 @@ class ZenSettings
 
         $old_key = $existing[self::PROVIDER_ID] ?? '';
         if ($new_key !== $old_key) {
-            delete_transient('opencode_zen_models');
             delete_transient('opencode_zen_models_raw');
         }
 
@@ -307,7 +260,6 @@ class ZenSettings
             return;
         }
 
-        delete_transient('opencode_zen_models');
         delete_transient('opencode_zen_models_raw');
 
         wp_safe_redirect(admin_url('options-general.php?page=' . SettingsPage::PAGE_SLUG));

@@ -100,7 +100,7 @@ class ZenModelMetadataDirectory implements ModelMetadataDirectoryInterface
      *
      * @return list<array{id: string, name?: string}>
      */
-    private function fetchAllModels(): array
+    public function fetchAllModels(): array
     {
         $cached = get_transient('opencode_zen_models_raw');
         if ($cached !== false && is_array($cached)) {
