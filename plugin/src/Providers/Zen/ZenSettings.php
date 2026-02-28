@@ -299,6 +299,10 @@ class ZenSettings
             return;
         }
 
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
         if (!check_admin_referer('opencode_refresh_models')) {
             return;
         }
