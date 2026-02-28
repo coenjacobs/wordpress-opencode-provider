@@ -147,16 +147,17 @@ class ZenModelMetadataDirectory implements ModelMetadataDirectoryInterface
 
         $models = [];
         foreach ($modelList as $model) {
-            if (!isset($model['id'])) {
+            if (!isset($model['id']) || !is_string($model['id'])) {
                 continue;
             }
 
+            $modelId = substr($model['id'], 0, 200);
             $format = $this->detectApiFormat($model);
-            self::$modelApiFormats[$model['id']] = $format;
+            self::$modelApiFormats[$modelId] = $format;
 
             $models[] = [
-                'id' => $model['id'],
-                'name' => $model['name'] ?? $model['id'],
+                'id' => $modelId,
+                'name' => $model['name'] ?? $modelId,
                 'api_format' => $format,
             ];
         }
