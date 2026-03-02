@@ -5,7 +5,7 @@ services:
       - "8080:80"
     volumes:
       - ./wordpress:/var/www/html
-      - ./plugin:/var/www/html/wp-content/plugins/opencode-provider
+      - .:/var/www/html/wp-content/plugins/opencode-provider
     depends_on:
       db:
         condition: service_healthy

@@ -14,7 +14,7 @@ Clone this repository into your `wp-content/plugins/` directory:
 
 ```bash
 git clone https://github.com/coenjacobs/wordpress-opencode-provider.git wp-content/plugins/opencode-provider
-cd wp-content/plugins/opencode-provider/plugin
+cd wp-content/plugins/opencode-provider
 composer install
 ```
 
@@ -85,5 +85,5 @@ This gives you a working WordPress 7.0-beta2 installation at **http://localhost:
 ### Volume Mounts
 
 - `./wordpress/` → `/var/www/html` — WordPress root (gitignored)
-- `./plugin/` → `/var/www/html/wp-content/plugins/opencode-provider` — plugin source
+- `./` → `/var/www/html/wp-content/plugins/opencode-provider` — plugin source
 - `./docker/mariadb/data/` → `/var/lib/mysql` — database storage (gitignored)
